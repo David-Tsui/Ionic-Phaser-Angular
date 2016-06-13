@@ -1,14 +1,11 @@
 ##模擬機
-ionic platform add android
-
-ionic build android
-
-ionic emulate android
+####ionic platform add android
+####ionic build android
+####ionic emulate android
 
 ##瀏覽器
-ionic serve
+####ionic serve
 
 ##透過Ionic view看成品
-ionic login
-
-ionic upload
+####ionic login
+####ionic upload
