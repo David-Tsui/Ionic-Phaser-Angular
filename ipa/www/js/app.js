@@ -3,10 +3,11 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic'])
+var ipa = angular.module('ipa', ['ionic']);
 
-.run(function($ionicPlatform) {
+ipa.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
+    screen.lockOrientation('landscape');
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -20,5 +21,20 @@ angular.module('starter', ['ionic'])
     if(window.StatusBar) {
       StatusBar.styleDefault();
     }
+
+
   });
 })
+
+.controller('MainCtrl', function($scope) {
+  // $scope.changeOriantationLandspace = function() {
+  //   console.log("landscape");
+  //   screen.lockOrientation('landscape');
+  // }
+  // $scope.changeOriantationPortrait = function() {
+  //   console.log("portrait");
+  //   screen.lockOrientation('portrait');
+  // }   
+});
+
+
