@@ -23,12 +23,12 @@
     <script src="js/phaser_nchuit_helper.js"></script>
     <!-- your app's js -->
     <script src="js/app.js"></script>
-    <script>
+    <!-- <script>
       document.addEventListener('deviceready', function() { 
-        console.log("ready");
-        angular.bootstrap(document, ['ipa']);
+        angular.bootstrap(document.body, ['ipa']);
+        screen.lockOrientation('landscape');
       }, false);
-    </script>
+    </script> -->
     <script>
       var game = {
         new: function(width, height, canvas_selector){
@@ -43,8 +43,8 @@
           phaser.load.image('star', 'assets/star.png');
           phaser.load.spritesheet('player', 'assets/Archer_shoot.png', 110, 160);
           phaser.load.spritesheet('monster', 'assets/baddie.png', 32, 32);  
-          phaser.load.tilemap('map', 'tilemap/map_final.json', null, Phaser.Tilemap.TILED_JSON);
-          phaser.load.image('spritesheet_test', 'tilemap/spritesheet_test.png');
+          phaser.load.tilemap('map', 'tilemap/map_new.json', null, Phaser.Tilemap.TILED_JSON);
+          phaser.load.image('spritesheet', 'tilemap/spritesheet.png');
           phaser.load.image('arrow', 'assets/arrow.png' , 70, 17);
         },
         create: function() {
@@ -58,14 +58,14 @@
 
           // 加入地圖 宣告地圖物件
           var map = phaser.add.tilemap('map');
-          map.addTilesetImage('spritesheet_test');  //spritesheet為地圖素材
+          map.addTilesetImage('spritesheet');  //spritesheet為地圖素材
 
           // Phaser.Canvas.setSmoothingEnabled(this.game.context, false);
           console.log(PhaserHelper.getCollisionIndexes(phaser, 'map'));
           map.setCollision(PhaserHelper.getCollisionIndexes(phaser, 'map')); // 設定"碰撞"性質
 
           var layer = map.createLayer('layer1');
-          // layer.setScale(2,2);a
+          layer.setScale(1.6,1.6);
           // layer.dirty = true;
           layer.bringToTop();
           layer.resizeWorld();
@@ -77,7 +77,7 @@
           background.width = layer.width;
 
           // 加入人物並宣告player物件
-          var player = phaser.add.sprite(30, 240, 'player');
+          var player = phaser.add.sprite(30, 50, 'player');
           player.scale.setTo(0.3,0.3);            //  將人物縮小
           phaser.physics.arcade.enable(player);  //  啟用人物的物理效果
 
@@ -96,7 +96,7 @@
           player.body.checkCollision.up = false;
           player.body.checkCollision.left = true;
           player.body.checkCollision.right = true;
-          // player.body.checkCollision.bottom = true;
+          player.body.checkCollision.bottom = true;
           //讓自己擁有生命力
           player.Health = 0;
           //  加入group 宣告整個為stars物件
@@ -413,11 +413,25 @@
       <ion-header-bar class="bar-stable">
         <h1 class="title">Defeat the BOSS!!</h1>
       </ion-header-bar>
-      <ion-content>
+      <ion-content ng-controller="MainCtrl">
         <div id="game-area"></div>
-        <!-- <button class="button button-full button-positive " ng-click="changeOriantationLandspace()">Change To Landspace Mode</button>
-        <button class="button button-full button-positive " ng-click="changeOriantationPortrait ()">Change To Portrait Mode</button> -->
+        <button class="button button-full button-positive " ng-click="changeOriantationLandspace()">Change To Landspace Mode</button>
+        <button class="button button-full button-positive " ng-click="changeOriantationPortrait ()">Change To Portrait Mode</button>
       </ion-content>
     </ion-pane>
+    <script>
+      angular.element(document).ready(function () {
+        if (window.cordova) {
+          console.log("Running in Cordova, will bootstrap AngularJS once 'deviceready' event fires.");
+          document.addEventListener('deviceready', function () {
+            console.log("Deviceready event has fired, bootstrapping AngularJS.");
+            angular.bootstrap(document.body, ['ipa']);
+          }, false);
+        } else {
+          console.log("Running in browser, bootstrapping AngularJS now.");
+          angular.bootstrap(document.body, ['ipa']);
+        }
+      });
+    </script>
   </body>
 </html>

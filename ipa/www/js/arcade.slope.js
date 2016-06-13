@@ -71,10 +71,10 @@
 
 	Phaser.Physics.Arcade.halfRectangleTop = function(i, body, tile){
 		// check intersection
-		/*var intersects = (body.bottom.right <= tile.worldX);
+		var intersects = (body.bottom.right <= tile.worldX);
 		intersects = intersects || (body.bottom <= tile.worldY + (tile.height / 2));
 		intersects = intersects || (body.position.x >= tile.worldX + tile.width);
-		intersects = intersects || (body.position.y >= tile.worldY + (tile.height / 2)); */
+		intersects = intersects || (body.position.y >= tile.worldY + (tile.height / 2)); 
 		var intersects = (body.bottom.right <= tile.worldX);
 		intersects = intersects || (body.bottom <= tile.worldY + (tile.height / 2));
 		intersects = intersects || (body.position.x >= tile.worldX + tile.width);
@@ -86,7 +86,7 @@
 
 
 		this.tileCheckX(body, tile);
-		/*
+		
 		var ox=0;
 		if (!body.blocked.right && body.deltaAbsX() > 0) {
 			ox = body.right - tile.left;
@@ -101,7 +101,7 @@
 		if(ox !== 0){
 			this.processTileSeparationX(body, ox);
 		}
-	*/
+	
 		var oy = 0;
 		
 		if (body.deltaY() < 0 && !body.blocked.up) {

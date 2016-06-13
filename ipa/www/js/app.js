@@ -7,7 +7,7 @@ var ipa = angular.module('ipa', ['ionic']);
 
 ipa.run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
-    screen.lockOrientation('landscape');
+    // screen.lockOrientation('landscape');
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -22,19 +22,21 @@ ipa.run(function($ionicPlatform) {
       StatusBar.styleDefault();
     }
 
-
+    
   });
 })
 
 .controller('MainCtrl', function($scope) {
-  // $scope.changeOriantationLandspace = function() {
-  //   console.log("landscape");
-  //   screen.lockOrientation('landscape');
-  // }
-  // $scope.changeOriantationPortrait = function() {
-  //   console.log("portrait");
-  //   screen.lockOrientation('portrait');
-  // }   
+  document.addEventListener('deviceready', function () {
+    $scope.changeOriantationLandspace = function() {
+      console.log("landscape");
+      screen.lockOrientation('landscape');
+    }
+    $scope.changeOriantationPortrait = function() {
+      console.log("portrait");
+      screen.lockOrientation('portrait');
+    }
+  }, false);
 });
 
 
