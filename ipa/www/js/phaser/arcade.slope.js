@@ -69,12 +69,8 @@
 	};
 
 
-	Phaser.Physics.Arcade.halfRectangleTop = function(i, body, tile){
+	Phaser.Physics.Arcade._collisionRectangleTop = function(i, body, tile){
 		// check intersection
-		var intersects = (body.bottom.right <= tile.worldX);
-		intersects = intersects || (body.bottom <= tile.worldY + (tile.height / 2));
-		intersects = intersects || (body.position.x >= tile.worldX + tile.width);
-		intersects = intersects || (body.position.y >= tile.worldY + (tile.height / 2)); 
 		var intersects = (body.bottom.right <= tile.worldX);
 		intersects = intersects || (body.bottom <= tile.worldY + (tile.height / 2));
 		intersects = intersects || (body.position.x >= tile.worldX + tile.width);
@@ -86,21 +82,6 @@
 
 
 		this.tileCheckX(body, tile);
-		
-		var ox=0;
-		if (!body.blocked.right && body.deltaAbsX() > 0) {
-			ox = body.right - tile.left;
-		} else if (!body.blocked.left && body.deltaAbsX() < 0) {
-			ox = body.x - tile.right;
-		}
-
-		if (this.TILE_BIAS < Math.abs(ox)) {
-			ox=0;
-		}
-		
-		if(ox !== 0){
-			this.processTileSeparationX(body, ox);
-		}
 	
 		var oy = 0;
 		
@@ -194,6 +175,8 @@
 		'HALF_TRIANGLE_BOTTOM_RIGHT': Phaser.Physics.Arcade._collisionHalfTriangleBottomRight,
 		// id: 8
 		'RECTANGLE_BOTTOM': Phaser.Physics.Arcade._collisionRectangleBottom,
+		// id: 6
+		'RECTANGLE_TOP': Phaser.Physics.Arcade._collisionRectangleTop,
 	};
 
 
