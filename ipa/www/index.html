@@ -45,10 +45,15 @@
 					phaser.load.image('sky', 'assets/bg.png');
 					phaser.load.image('star', 'assets/star.png');
 					phaser.load.spritesheet('player', 'assets/Archer_shoot.png', 110, 160);
-					phaser.load.spritesheet('monster', 'assets/baddie.png', 32, 32);  
+					phaser.load.spritesheet('monster', 'assets/monster.png', 195, 175);  
+					// phaser.load.atlasJSONHash('monster', 'assets/monster.png', 'assets/monster.json');
 					phaser.load.tilemap('map', 'tilemap/map_new.json', null, Phaser.Tilemap.TILED_JSON);
 					phaser.load.image('spritesheet', 'tilemap/spritesheet.png');
 					phaser.load.image('arrow', 'assets/arrow.png' , 70, 17);
+					phaser.load.image('button_jump', 'assets/up_arrow120.png' ,120, 120);
+					phaser.load.image('button_walk_left', 'assets/left_arrow120.png',120,120);
+					phaser.load.image('button_walk_right', 'assets/right_arrow120.png',120,120);
+					phaser.load.spritesheet('buttonfire', 'assets/button-round-a.png',64,64);
 				},
 				create: function() {
 					//  啟用Arcade物理引擎
@@ -102,11 +107,6 @@
 					});
 
 					map.setCollisionBetween(2, 34, true, 'collision');
-
-					// Phaser.Canvas.setSmoothingEnabled(this.game.context, false);
-					// console.log(PhaserHelper.getCollisionIndexes(phaser, 'map'));
-					// map.setCollision(PhaserHelper.getCollisionIndexes(phaser, 'map')); // 設定"碰撞"性質
-					
 					
 					var tiles = map.layers[0].data;
 
@@ -116,40 +116,39 @@
 
 					// 加入人物並宣告player物件
 					var player = phaser.add.sprite(30, 150, 'player');
-					player.scale.setTo(0.3,0.3);            //  將人物縮小
+					player.scale.setTo(0.28,0.28);            //  將人物縮小
 					phaser.physics.arcade.enable(player);  //  啟用人物的物理效果
 					phaser.slopes.enable(player);
-					console.log("player: ", player);
 
 					// Just a touch of tile padding
-					// player.body.tilePadding.x = 1;
-					// player.body.tilePadding.y = 1;
+					// player.body.tilePadding.x = 0;
+					// player.body.tilePadding.y = 0;
 					// player.debug = true;
 					
-					player.body.gravity.y = 1200;
-					// player.body.drag.x = 0;
-					player.body.bounce.x = 0.15;
+					player.body.gravity.y = 850;
+					player.body.bounce.x = 0;
 					player.body.bounce.y = 0.15;
-					player.body.slopes.friction.x = .5;
-					player.body.slopes.friction.y = 1;
+					player.body.slopes.friction.x = 0;
+					player.body.slopes.friction.y = 0.5;
 					// player.body.maxVelocity.x = 300;
 					// player.body.maxVelocity.y = 300;
 					player.body.collideWorldBounds = true;
 					
 					// 向左向右 人物移動時的動畫效果
-					player.animations.add('left', [2, 3, 4, 5], 10, true);
-					player.animations.add('right', [7, 8, 9, 10], 10, true);
-					player.animations.add('shoot_left', [0,1], 5, true);
+					player.animations.add('left', [2, 3, 4, 5], 8, true);
+					player.animations.add('right', [7, 8, 9, 10], 8, true);
+					player.animations.add('shoot_left', [0, 1], 5, true);
 					player.animations.add('shoot_right', [12,11], 5, true);
 					player.bringToTop();
+					player.animations.play('right');
 					phaser.camera.follow(player);
 					// 設定地圖中方塊的碰撞面
-					player.body.checkCollision.up = false;
-					player.body.checkCollision.left = true;
-					player.body.checkCollision.right = true;
-					player.body.checkCollision.bottom = true;
+					// player.body.checkCollision.up = false;
+					// player.body.checkCollision.left = false;
+					// player.body.checkCollision.right = false;
+					// player.body.checkCollision.bottom = false;
 					//讓自己擁有生命力
-					player.Health = 0;
+					player.health = 0;
 					
 					//  加入group 宣告整個為stars物件
 					var stars = phaser.add.group();
@@ -158,9 +157,10 @@
 
 					//  等距離橫向分布12顆星星
 					for(var i = 0; i < 12; i++) {
-						var star = stars.create(i * 70, 0, 'star');      //  加入星星並設定座標
-						star.body.gravity.y = 300;                       //  為stars設定重力場
-						star.body.bounce.y = 0.7 + Math.random() * 0.2;  //  利用Math.random()給予每顆星星不同的彈力
+						var star = stars.create(i * 70, 200, 'star');      //  加入星星並設定座標
+						star.body.gravity.y = 500;                       //  為stars設定重力場
+						star.body.bounce.y = 0.3 + Math.random() * 0.2;  //  利用Math.random()給予每顆星星不同的彈力
+						phaser.slopes.enable(star);
 					}
 					
 
@@ -171,41 +171,47 @@
 					this.player = player;
 					this.stars = stars;
 
+					this.left = false;
+					this.right = false;
+					this.jump = false;
+
 					// ===============  賦予怪物生命 & basics ===============
 					//pay attention to the declaration form and order!!!
 					//注意宣告方式以及順序
-					this.pointer_down = false;
 					this.monsterRunningCount = 45;
 					this.monsterTotalHealth = 33;
 					this.player.killMeCD = 150;
 					this.arrows = [];
 					this.monsters = [];
 					this.firetime = 0;
+					this.goFire = true;
 
 					for (var i = 0; i <= 10; i++) {
 						//加入怪物 宣告怪物物件
 						var x = phaser.world.randomX;
 						var y = phaser.world.randomY;
-						if (x >= 630) {
-							x = 630;
+						if (x >= 1000) {
+							x = 1000;
 						} else if (x < 100) {
 							x = 100;
 						}
-						var monster = phaser.add.sprite(x, y - 350, 'monster');
-						monster.scale.setTo(.8,.8);
+						var monster = phaser.add.sprite(x, 200, 'monster');
+						// console.log("monster: ", monster);
+						monster.scale.setTo(.5,.5);
 						phaser.physics.arcade.enable(monster);
-						monster.body.bounce.y = 0.2;
-						monster.body.gravity.y = 300;
+						phaser.slopes.enable(monster);
+						monster.body.bounce.y = 0.1;
+						monster.body.gravity.y = 1000;
 						monster.body.collideWorldBounds = true;
 
-						//怪物移動時的動畫效果及碰撞
-						monster.animations.add('left', [0, 1], 10, true); 
-						monster.animations.add('right', [2, 3], 10, true);
+						// 怪物移動時的動畫效果及碰撞
+						monster.animations.add('left', [5, 6, 7, 8], 5, true); 
+						monster.animations.add('right', [13, 14, 15], 5, true);
+						// monster.body.checkCollision.up = false;
+						// monster.body.checkCollision.left = true;
+						// monster.body.checkCollision.right = true;
+						// monster.body.checkCollision.down = true;
 						monster.bringToTop();
-						monster.body.checkCollision.up = false;
-						monster.body.checkCollision.left = true;
-						monster.body.checkCollision.right = true;
-						monster.body.checkCollision.down = true;
 
 						//怪物出現時的移動方向
 						if (x <= 325) {
@@ -225,40 +231,130 @@
 						})
 					}
 					// =================  左上角加入一個記分板  ================
-					var blood = this.phaser.add.text(16, 16, 'Health:', { fontSize: '16px' });
+					var blood = phaser.add.text(16, 16, 'Health:', { fontSize: '16px' });
 					blood.fixedToCamera = true;
 					blood.font = 'Arial';
 					blood.align = 'center';
 					// blood.setShadow(2, 2, '#373331', 1);
 					this.blood = blood;
+
+
+					var buttonLeft = phaser.add.button(20, 225, 'button_walk_left', null, this);
+			    buttonLeft.fixedToCamera = true;
+			    buttonLeft.scale.setTo(.5,.5);
+			    buttonLeft.events.onInputOver.add(function(){
+			    	this.left = true;
+			    	this.goFire = false;
+			    }.bind(this));
+			    buttonLeft.events.onInputOut.add(function(){
+			    	this.left = false;
+			    	this.goFire = true;
+			    }.bind(this));
+			    buttonLeft.events.onInputDown.add(function(){
+			    	this.left = true;
+			    	this.goFire = false;
+			    }.bind(this));
+			    buttonLeft.events.onInputUp.add(function(){
+			    	this.left = false;
+			    	this.goFire = true;
+			    }.bind(this));
+
+      		var buttonRight = phaser.add.button(100, 225, 'button_walk_right', null, this);
+  		    buttonRight.fixedToCamera = true;
+  		    buttonRight.scale.setTo(.5,.5);
+  		    buttonRight.events.onInputOver.add(function(){
+  		    	this.right = true;
+  		    	this.goFire = false;
+  		    }.bind(this));
+  		    buttonRight.events.onInputOut.add(function(){
+  		    	this.right = false;
+  		    	this.goFire = true;
+  		    }.bind(this));
+  		    buttonRight.events.onInputDown.add(function(){
+  		    	this.right = true;
+  		    	this.goFire = false;
+  		    }.bind(this));
+  		    buttonRight.events.onInputUp.add(function(){
+  		    	this.right = false;
+  		    	this.readyFire = false;
+  		    	this.goFire = false;
+  		    	// var that = this;
+  		    	// setTimeout(function() {
+  		    	// 	console.log("that: ", that);
+  		    	// 	that.goFire = true;
+  		    	// }, 500);
+  		    }.bind(this));
+
+			    var buttonJump = phaser.add.button(500, 225, 'button_jump', null, this);
+			    buttonJump.fixedToCamera = true;
+			    buttonJump.scale.setTo(.5,.5);
+			    buttonJump.events.onInputOver.add(function(){
+			    	this.jump = true;
+			    }.bind(this));
+			    buttonJump.events.onInputOut.add(function(){
+			    	this.jump = false;
+			    }.bind(this));
+			    buttonJump.events.onInputDown.add(function(){
+			    	this.jump = true;
+			    }.bind(this));
+			    buttonJump.events.onInputUp.add(function(){
+			    	this.jump = false;
+			    	this.readyFire = false;
+  		    	this.goFire = false;
+			    }.bind(this));
+
+			    var buttonfire = phaser.add.button(580, 225, 'buttonfire', null, this, 0, 1, 0, 1);
+			    buttonfire.fixedToCamera = true;
+			    buttonfire.scale.setTo(.92,.92);
+			    buttonfire.events.onInputOver.add(function(){ 
+			    	this.goFire = true;
+			    }.bind(this));
+			    buttonfire.events.onInputOut.add(function(){ 
+			    	this.goFire = false;
+			    }.bind(this));
+			    buttonfire.events.onInputDown.add(function(){ 
+			    	this.goFire = true;
+			    }.bind(this));
+			    buttonfire.events.onInputUp.add(function(){ 
+			    	this.goFire = false;
+			    }.bind(this));     
+	    		
 				},
-				update: function(){
+				update: function() {
 					// update將會以每秒三十次之頻率更新畫面
 					// 宣告之前使用過的物件
 					var phaser = this.phaser;
 					var player = this.player;
-					var body = player.body;
 					var ground = this.ground;
 					var collision = this.collision;
 					var stars = this.stars;
 					var monsters = this.monsters;
 					var arrows = this.arrows;
+					var left = this.left;
+					var right = this.right;
+					var jump = this.jump;
+					var goFire = this.goFire;
 
 					//  人物與地圖物件之間的碰撞
 					var touching_ground = phaser.physics.arcade.collide(player, ground);
+					// var touching = player.body.touching;
 					phaser.physics.arcade.collide(stars, ground);
 					phaser.physics.arcade.collide(arrows, ground, function(arrow, ground) {
 						// 箭要消失喔
-						arrow.kill();
-					});
+						arrow.destroy();
+						this.arrows = arrows.filter(function(arrow) {
+							return arrow.alive === true;
+						});
+					}.bind(this));
 					//  偵測人物與星星，如果重疊將會call collectStar function來計算分數
 					phaser.physics.arcade.overlap(player, stars, this.collectStar, null, this);
 					//  人物的初速度
 					player.body.velocity.x = 0;
 
 					// ============================ 人物移動、動畫 =================================
-					if (game.input.keyboard.isDown(Phaser.Keyboard.A)) { // 按A鍵 
+					if (left || phaser.input.keyboard.isDown(Phaser.Keyboard.A)) { // 按A鍵 
 						//  往左方移動
+						// console.log("move left");
 						player.body.velocity.x = -100;
 						player.animations.play('left');
 
@@ -269,7 +365,8 @@
 								player.frame = 2;   // 設定人物的面向
 							}
 						}
-					} else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) { // 按D鍵
+					} else if (right || phaser.input.keyboard.isDown(Phaser.Keyboard.D)) { // 按D鍵
+						// console.log("move right");
 						player.body.velocity.x = 100;
 						player.animations.play('right');
 						if (!touching_ground) {
@@ -288,37 +385,54 @@
 						}
 					}
 					// 觸地瞬間跳躍
-					if (game.input.keyboard.isDown(Phaser.Keyboard.W) && touching_ground) {
-						player.body.velocity.y = -400;
+					if ((jump || phaser.input.keyboard.isDown(Phaser.Keyboard.W)) && touching_ground) {
+						player.body.velocity.y = -340;
 					}
 					// ===============  發射動畫  ================
 					// 延長射擊時間
 					this.firetime -= 1;
 
 					// 按著滑鼠左鍵時出現拉弓動作
-					if (game.input.activePointer.isDown && this.firetime <= 0) {
-						this.pointer_down = true;
-						if(player.frame < 6) {
-							player.frame = 1;
-						} else {
-							player.frame = 11;
-						}
-					} else if(this.pointer_down) { // 放開左鍵時放箭
-						this.pointer_down = false;
-						var fire_point = {x: player.x + 20, y: player.y + 10};  // 設定發射點
+					if (phaser.input.activePointer.isDown && this.firetime <= 0) {
+						console.log("拉弓");
+						this.readyFire = true;
+
+						var fire_point = {x: player.x, y: player.y};  // 設定發射點
 						var rotation = phaser.physics.arcade.angleToPointer(fire_point);    // 設定發射點與滑鼠之間的角度
-						// console.log(rotation);
-						if (player.frame < 6 && Math.abs(rotation) > Math.PI / 2) {
-							player.frame = 0;
-							this.fire(fire_point.x, fire_point.y, rotation);
-							this.firetime = 3;
-						} else if (player.frame >= 6 && Math.abs(rotation) < Math.PI / 2) {
-							player.frame = 12;
-							this.fire(fire_point.x, fire_point.y, rotation);    // 呼叫 fire function 來發射子彈
-							this.firetime = 3;
+
+						if (!this.isMoving()) {
+							this.goFire = true;
+							console.log("我沒在動!");
+							if (player.frame < 6 && Math.abs(rotation) > Math.PI / 2) {
+								player.frame = 1;
+							} else if (player.frame < 6 && Math.abs(rotation) < Math.PI / 2) {
+								player.frame = 11;
+							} else if (player.frame >= 6 && Math.abs(rotation) < Math.PI / 2) {
+								player.frame = 11;
+							} else if (player.frame >= 6 && Math.abs(rotation) > Math.PI / 2) {
+								player.frame = 1;							
+							}
 						}
+					} else if (this.readyFire && goFire) { // 放開左鍵時放箭
+						console.log("放弓");
+						this.readyFire = false;
+						var fire_point = {x: player.x, y: player.y};  // 設定發射點
+						var rotation = phaser.physics.arcade.angleToPointer(fire_point);    // 設定發射點與滑鼠之間的角度
+						console.log("拉弓角度: ", rotation);
+						if (left) {
+							rotation += Math.PI;
+						} else if (right) {
+							rotation = 0;
+						}
+						if (player.frame < 6) {
+							player.frame = 0;
+						} else if (player.frame >= 6) {
+							player.frame = 12;
+						}
+						this.fire(fire_point.x, fire_point.y, rotation);
+						this.firetime = 5;	
 					}
-					// ===============  發射動畫END  ===============
+					// ===============  發射動畫END  =============== 	
 					// ================  人物控制結束   ================
 
 					// ===================  怪物的AI  =====================
@@ -333,17 +447,17 @@
 							// 如果受擊冷卻時間到，便受傷
 							if (this.player.killMeCD <= 0) {
 								phaser.physics.arcade.overlap(player, monsters[i].monster, function() {
-									this.player.Health -= 8;
+									this.player.health -= 8;
 									this.player.killMeCD = 60;
 									// console.log("cd: " + this.player.killMeCD);
-									// console.log("hp: " + this.player.Health);
+									// console.log("hp: " + this.player.health);
 								}, null, this);
 							}
 
 							// 箭跟怪物的互動
 							phaser.physics.arcade.overlap(arrows, monsters[i].monster, function(arrow, monster) {
 								// 箭要消失喔
-								arrow.kill();
+								arrow.destroy();
 								monsters[i].health --;  // 心好痛
 								this.monsterTotalHealth --; // 一步步走向滅絕
 								// 沒血了 bye 囉
@@ -353,7 +467,7 @@
 								}
 							}, null, this);
 
-							//跑跑跑～～～向前跑 左右左右跑
+							// 跑跑跑～～～向前跑 左右左右跑
 							if (this.monsterRunningCount == 0) {
 								monsters[i].monster.body.velocity.x *= -1;
 								if(monsters[i].monster.body.velocity.x > 0)
@@ -373,42 +487,69 @@
 
 					// ============================================================
 					// 隱藏版
-					if (game.input.keyboard.isDown(Phaser.Keyboard.O) && player.Health >= 0) {
+					if (phaser.input.keyboard.isDown(Phaser.Keyboard.O) && player.health >= 0) {
 						monsters.forEach(function (e, i) {monsters[i].monster.kill();});
 						this.monsterTotalHealth = 0;
-						this.player.Health = "Ultra";
+						this.player.health = "Ultra";
 						this.fire(0, 460, 0, "o");
 						this.firetime = 30;
-						stars.visible = false
+						stars.visible = false;
+					}
+
+					if (phaser.input.currentPointers == 0 && !phaser.input.activePointer.isMouse){
+						this.right = false; 
+						this.left = false;
+						this.jump = false;
+						this.readyFire = false;
 					}
 				},
+				render: function() {
+					var phaser = this.phaser;
+					var player = this.player;
+					var ground = this.ground;
+					var collision = this.collision;
+					var stars = this.stars;
+					var monsters = this.monsters;
+					var arrows = this.arrows;
+
+					// phaser.debug.body(player);
+					// monsters.forEach(function(monster) {
+					// 	phaser.debug.body(monster.monster);
+					// });
+					arrows.forEach(function(arrow) {
+						phaser.debug.body(arrow);
+					});
+					// console.log('arrows: ', arrows);
+				},
 				collectStar: function (player, star){
-					star.kill();
-					this.player.Health += 10;
+					var phaser = this.phaser;
+					var stars = this.stars;
+					star.destroy();
+					this.player.health += 10;
 				},
 				showHealth: function() {
 					var color;
 					// ======================  變更血條顏色  ========================
-					if (this.player.Health < 40 || this.player.Health == "Dead") {
+					if (this.player.health < 40 || this.player.health == "Dead") {
 						color = '#DA1212';
-					} else if (this.player.Health >= 40 && this.player.Health < 80) {
+					} else if (this.player.health >= 40 && this.player.health < 80) {
 						color = '#E4663A';
-					} else if (this.player.Health >= 80 && this.player.Health <= 120) {
+					} else if (this.player.health >= 80 && this.player.health <= 120) {
 						color = '#17E7A4';
-					} else if (this.player.Health == "Ultra") {
+					} else if (this.player.health == "Ultra") {
 						color = '#17E7A4';
 					}
 					// ========================  結果訊息  =======================
 					if (this.monsterTotalHealth == 0) {
 						this.createText("You Win (●´ω｀●)ゞ",'w');
 					}
-					if (this.player.Health < 0) {
+					if (this.player.health < 0) {
 						this.player.kill();
-						this.player.Health = "Dead";
+						this.player.health = "Dead";
 						this.createText("You Lose (;´༎ຶД༎ຶ`)",'l');
 						// use createText function to create texts
 					}
-					this.blood.text = 'Health: ' + this.player.Health;
+					this.blood.text = 'Health: ' + this.player.health;
 					this.blood.fill = color;
 				},
 				createText: function (text, result) {
@@ -433,23 +574,38 @@
 					note.align = 'center';
 					note.setShadow(2, 2, '#3E3E3E', 1);
 				},
-				fire :  function  (x, y, rotation, o) {
-					// 放箭要做的事情 +.+
+				fire:  function(x, y, rotation, o) {
 					var phaser = this.phaser;
-					var arrow = phaser.add.sprite(x, y, 'arrow');
+					var left = this.left;
+					var right = this.right;
+					var jump = this.jump;
+					var readyFire = this.readyFire;
+					var goFire = this.goFire;
+					// 放箭要做的事情 +.+
+					// if (!readyFire && (left || right))
+					// 	return;
+					// console.log("readyFire: " + readyFire);
+					// console.log("left: " + left + ", right: " + right);
+					
+					var arrow = phaser.add.sprite(x, y + 10, 'arrow');
 					arrow.scale.setTo(0.5, 0.5);
 					arrow.rotation = rotation;
-					arrow.currentSpeed = 750;
+					arrow.currentSpeed = 300;
 					arrow.anchor.setTo(-0.5, -0.5);
+					arrow.checkWorldBounds = true;
+					arrow.outOfBoundsKill = true;
 					phaser.physics.arcade.enable(arrow);
+					phaser.slopes.enable(arrow);
 					if (o == "o") {
 						arrow.scale.setTo(2, 2);
 						arrow.currentSpeed = 1200;
 					}
 					phaser.physics.arcade.velocityFromRotation(arrow.rotation, arrow.currentSpeed, arrow.body.velocity);  
 					// 用發射點與滑鼠之間的角度來產生速度
-					arrow.outOfBoundsKill = true;
 					this.arrows.push(arrow);
+				},
+				isMoving: function() {
+					return this.left || this.right;
 				}
 			};
 
