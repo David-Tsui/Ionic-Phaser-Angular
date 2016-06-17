@@ -33,7 +33,7 @@ var ArcadeSlopesDemo = (function(Phaser) {
 		
 		preload: function () {
 			// Load our assets (a demo map and two tilesheet choices)
-			this.load.tilemap('map', 'assets/maps/map_test.json', null, Phaser.Tilemap.TILED_JSON);
+			this.load.tilemap('map', 'assets/maps/map_test.json?v=1', null, Phaser.Tilemap.TILED_JSON);
 			this.load.image('spritesheet', 'assets/tilesheets/spritesheet.png');
 			// this.load.spritesheet('pink-collision-spritesheet', 'assets/tilesheets/ninja-tiles32-pink.png', 32, 32);
 			// this.load.spritesheet('purple-collision-spritesheet', 'assets/tilesheets/ninja-tiles32-purple.png', 32, 32);
@@ -136,7 +136,8 @@ var ArcadeSlopesDemo = (function(Phaser) {
 			this.player.body.collideWorldBounds = true;
 			
 			// Position our player
-			this.player.position.set(240, 2464);
+			this.player.position.set(0, 0);
+			this.game.camera.follow(this.player);
 			
 			// Create a particle emitter and position it on the player
 			this.emitter = this.add.emitter(this.player.x, this.player.y, 2000);
