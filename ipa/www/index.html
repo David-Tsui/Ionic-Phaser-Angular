@@ -33,6 +33,10 @@
 
 
 		<script>
+			/*var console = {};
+			console.log = function(){};
+			console.warn = function(){};
+			window.console = console;*/
 			var game = {
 				new: function(width, height, canvas_selector) {
 					this.phaser = new Phaser.Game(width, height, Phaser.CANVAS, canvas_selector, this);
@@ -186,6 +190,12 @@
 					this.firetime = 0;
 					this.goFire = true;
 
+					this.buttonLeftIsClick = false;
+					this.buttonRightIsClick = false;
+					this.buttonFireIsClick = false;
+					this.buttonFireIsClicked = false;
+					this.buttonJumpIsClick = false;
+
 					for (var i = 0; i <= 10; i++) {
 						//加入怪物 宣告怪物物件
 						var x = phaser.world.randomX;
@@ -238,26 +248,33 @@
 					// blood.setShadow(2, 2, '#373331', 1);
 					this.blood = blood;
 
+					buttonGroup = game.add.group();
 
 					var buttonLeft = phaser.add.button(20, 225, 'button_walk_left', null, this);
 			    buttonLeft.fixedToCamera = true;
 			    buttonLeft.scale.setTo(.5,.5);
-			    buttonLeft.events.onInputOver.add(function(){
+			    buttonLeft.events.onInputOver.add(function(){ //指到
 			    	this.left = true;
 			    	this.goFire = false;
+			    	this.buttonLeftIsClick = false;
 			    }.bind(this));
-			    buttonLeft.events.onInputOut.add(function(){
+			    buttonLeft.events.onInputOut.add(function(){  //指離開
 			    	this.left = false;
-			    	this.goFire = true;
+			    	this.goFire = false;
+			    	this.buttonLeftIsClick = false;
 			    }.bind(this));
-			    buttonLeft.events.onInputDown.add(function(){
+			    buttonLeft.events.onInputDown.add(function(){ //按下去
 			    	this.left = true;
 			    	this.goFire = false;
+			    	this.buttonLeftIsClick = true;
 			    }.bind(this));
-			    buttonLeft.events.onInputUp.add(function(){
+			    buttonLeft.events.onInputUp.add(function(){   //彈起來
 			    	this.left = false;
-			    	this.goFire = true;
+			    	this.goFire = false;
+  		    	this.readyFire = false;
+			    	this.buttonLeftIsClick = false;
 			    }.bind(this));
+			    buttonGroup.add(buttonLeft);
 
       		var buttonRight = phaser.add.button(100, 225, 'button_walk_right', null, this);
   		    buttonRight.fixedToCamera = true;
@@ -265,59 +282,78 @@
   		    buttonRight.events.onInputOver.add(function(){
   		    	this.right = true;
   		    	this.goFire = false;
+			    	this.buttonRightIsClick = false;
   		    }.bind(this));
   		    buttonRight.events.onInputOut.add(function(){
   		    	this.right = false;
-  		    	this.goFire = true;
+  		    	this.goFire = false;
+			    	this.buttonRightIsClick = false;
   		    }.bind(this));
   		    buttonRight.events.onInputDown.add(function(){
   		    	this.right = true;
   		    	this.goFire = false;
+			    	this.buttonRightIsClick = true;
   		    }.bind(this));
   		    buttonRight.events.onInputUp.add(function(){
   		    	this.right = false;
   		    	this.readyFire = false;
   		    	this.goFire = false;
+			    	this.buttonRightIsClick = false;
   		    	// var that = this;
   		    	// setTimeout(function() {
   		    	// 	console.log("that: ", that);
   		    	// 	that.goFire = true;
   		    	// }, 500);
   		    }.bind(this));
+			    buttonGroup.add(buttonRight);
 
 			    var buttonJump = phaser.add.button(500, 225, 'button_jump', null, this);
 			    buttonJump.fixedToCamera = true;
 			    buttonJump.scale.setTo(.5,.5);
 			    buttonJump.events.onInputOver.add(function(){
-			    	this.jump = true;
+			    	this.jump = false;
+			    	this.buttonJumpIsClick = false;
 			    }.bind(this));
 			    buttonJump.events.onInputOut.add(function(){
 			    	this.jump = false;
+			    	this.buttonJumpIsClick = false;
 			    }.bind(this));
 			    buttonJump.events.onInputDown.add(function(){
 			    	this.jump = true;
+			    	this.buttonJumpIsClick = true;
 			    }.bind(this));
 			    buttonJump.events.onInputUp.add(function(){
 			    	this.jump = false;
 			    	this.readyFire = false;
-  		    	this.goFire = false;
+  		    	this.goFire = true;
+			    	this.buttonJumpIsClick = false;
 			    }.bind(this));
+			    buttonGroup.add(buttonJump);
 
 			    var buttonfire = phaser.add.button(580, 225, 'buttonfire', null, this, 0, 1, 0, 1);
 			    buttonfire.fixedToCamera = true;
 			    buttonfire.scale.setTo(.92,.92);
 			    buttonfire.events.onInputOver.add(function(){ 
-			    	this.goFire = true;
+			    	this.goFire = false;
+			    	this.buttonFireIsClick = false;
+			    	this.buttonFireIsClicked = false;
 			    }.bind(this));
 			    buttonfire.events.onInputOut.add(function(){ 
 			    	this.goFire = false;
+			    	this.buttonFireIsClick = false;
+			    	this.buttonFireIsClicked = false;
 			    }.bind(this));
 			    buttonfire.events.onInputDown.add(function(){ 
-			    	this.goFire = true;
+			    	this.goFire = false;
+			    	this.buttonFireIsClick = true;
+			    	this.buttonFireIsClicked = false;
 			    }.bind(this));
 			    buttonfire.events.onInputUp.add(function(){ 
-			    	this.goFire = false;
-			    }.bind(this));     
+			    	this.goFire = true;
+			    	this.buttonFireIsClick = false;
+			    	this.buttonFireIsClicked = true;
+			    }.bind(this));
+			    buttonGroup.add(buttonfire);
 	    		
 				},
 				update: function() {
@@ -335,8 +371,17 @@
 					var jump = this.jump;
 					var goFire = this.goFire;
 
+					var buttonLeftIsClick = this.buttonLeftIsClick;
+					var buttonRightIsClick = this.buttonRightIsClick;
+					var buttonJumpIsClick = this.buttonJumpIsClick;
+					var buttonFireIsClick = this.buttonFireIsClick;
+					var buttonFireIsClicked = this.buttonFireIsClicked;
+
 					//  人物與地圖物件之間的碰撞
 					var touching_ground = phaser.physics.arcade.collide(player, ground);
+
+					game.world.bringToTop(buttonGroup);
+
 					// var touching = player.body.touching;
 					phaser.physics.arcade.collide(stars, ground);
 					phaser.physics.arcade.collide(arrows, ground, function(arrow, ground) {
@@ -352,12 +397,17 @@
 					player.body.velocity.x = 0;
 
 					// ============================ 人物移動、動畫 =================================
-					if (left || phaser.input.keyboard.isDown(Phaser.Keyboard.A)) { // 按A鍵 
+					if (phaser.input.keyboard.isDown(Phaser.Keyboard.A) || buttonLeftIsClick) { // 按A鍵 
 						//  往左方移動
 						// console.log("move left");
 						player.body.velocity.x = -100;
 						player.animations.play('left');
 
+						if (buttonJumpIsClick && touching_ground) {
+							player.body.velocity.y = -340;
+							this.buttonJumpIsClick = false;
+							this.jump = false;
+						}
 						// 若未觸地則stop
 						if (!touching_ground) {
 							player.animations.stop();
@@ -365,29 +415,42 @@
 								player.frame = 2;   // 設定人物的面向
 							}
 						}
-					} else if (right || phaser.input.keyboard.isDown(Phaser.Keyboard.D)) { // 按D鍵
+					} else if (phaser.input.keyboard.isDown(Phaser.Keyboard.D) || buttonRightIsClick) { // 按D鍵
 						// console.log("move right");
 						player.body.velocity.x = 100;
 						player.animations.play('right');
+
+						if (buttonJumpIsClick && touching_ground) {
+							player.body.velocity.y = -340;
+							this.buttonJumpIsClick = false;
+							this.jump = false;
+						}
+
 						if (!touching_ground) {
 							player.animations.stop();
 							if (player.frame >= 6) {
 								player.frame = 10;
 							}
 						}
-					} else {
+					}
+					// 觸地瞬間跳躍
+					else if ((jump || phaser.input.keyboard.isDown(Phaser.Keyboard.W) || buttonJumpIsClick) && touching_ground) {
+						player.body.velocity.y = -340;
+					}
+					else {
 						//  若未按壓任何按鍵時
 						player.animations.stop();
+						this.buttonLeftIsClick = false;
+						this.buttonRightIsClick = false;
+						this.buttonJumpIsClick = false;
+						this.buttonFireIsClick = false;
 						if (player.frame < 6) {
 							player.frame = 5;
 						} else {
 							player.frame = 7;
 						}
 					}
-					// 觸地瞬間跳躍
-					if ((jump || phaser.input.keyboard.isDown(Phaser.Keyboard.W)) && touching_ground) {
-						player.body.velocity.y = -340;
-					}
+					
 					// ===============  發射動畫  ================
 					// 延長射擊時間
 					this.firetime -= 1;
@@ -396,39 +459,69 @@
 					if (phaser.input.activePointer.isDown && this.firetime <= 0) {
 						console.log("拉弓");
 						this.readyFire = true;
-
 						var fire_point = {x: player.x, y: player.y};  // 設定發射點
 						var rotation = phaser.physics.arcade.angleToPointer(fire_point);    // 設定發射點與滑鼠之間的角度
-
+						console.log("rotation: ", rotation);
 						if (!this.isMoving()) {
-							this.goFire = true;
+							//this.goFire = true;
 							console.log("我沒在動!");
 							if (player.frame < 6 && Math.abs(rotation) > Math.PI / 2) {
 								player.frame = 1;
+								console.log("面左，射左");
+								// if (!buttonFireIsClicked) {
+								// 	player.frame = 1;
+								// } else {
+								// 	console.log("你點了交錯的方向");
+								// 	player.frame = 1;
+								// 	console.log("原本我應該往右邊轉身");
+									
+								// }
 							} else if (player.frame < 6 && Math.abs(rotation) < Math.PI / 2) {
 								player.frame = 11;
+								console.log("面左，射右");
+								
+									
 							} else if (player.frame >= 6 && Math.abs(rotation) < Math.PI / 2) {
 								player.frame = 11;
+								console.log("面右，射右");
 							} else if (player.frame >= 6 && Math.abs(rotation) > Math.PI / 2) {
-								player.frame = 1;							
+								player.frame = 1;
+								console.log("面右，射左");
+								// if (!buttonFireIsClicked) {
+								// 	player.frame = 11;
+								// } else {
+								// 	console.log("你點了交錯的方向");
+								// 	player.frame = 1;
+								// 	console.log("原本我應該往右邊轉身");
+									
+								// }
 							}
 						}
-					} else if (this.readyFire && goFire) { // 放開左鍵時放箭
+					} else if (this.readyFire) { // 放開左鍵時放箭
 						console.log("放弓");
 						this.readyFire = false;
 						var fire_point = {x: player.x, y: player.y};  // 設定發射點
 						var rotation = phaser.physics.arcade.angleToPointer(fire_point);    // 設定發射點與滑鼠之間的角度
-						console.log("拉弓角度: ", rotation);
+						console.log ("buttonFireIsClicked:", buttonFireIsClicked);
+						if (buttonFireIsClicked && player.frame >= 6) {
+							rotation = 0.0;
+							this.buttonFireIsClicked = false;
+						} else if (buttonFireIsClicked && player.frame < 6) {
+							rotation += Math.PI;
+							this.buttonFireIsClicked = false;
+						}
 						if (left) {
 							rotation += Math.PI;
 						} else if (right) {
 							rotation = 0;
 						}
+
 						if (player.frame < 6) {
 							player.frame = 0;
 						} else if (player.frame >= 6) {
 							player.frame = 12;
 						}
+						console.log("拉弓角度: ", rotation);
 						this.fire(fire_point.x, fire_point.y, rotation);
 						this.firetime = 5;	
 					}
