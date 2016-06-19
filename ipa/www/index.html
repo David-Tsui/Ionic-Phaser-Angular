@@ -479,19 +479,18 @@
 
 					for(var i = 0; i < 10; i++) {
 						if (monsters[i].alive) {
-							// 設定怪物碰撞
-							game.physics.arcade.collide(monsters[i].monster, ground);
+							// 設定怪物碰撞							
 							game.physics.arcade.collide(monsters[i].monster, ground, function(monster, ground) {
 								if (monster.monsterRunningCount < 0) {
 									monster.monsterRunningCount = 20;
 									monster.body.velocity.x = 200;
-									monster.body.velocity.y = -700;
+									monster.body.velocity.y = -300;
 									monster.animations.play('right');
 								}
 								else {
 									monster.monsterRunningCount = -20;
 									monster.body.velocity.x = -200;
-									monster.body.velocity.y = -700;
+									monster.body.velocity.y = -300;
 									monster.animations.play('left');
 								}
 							});
