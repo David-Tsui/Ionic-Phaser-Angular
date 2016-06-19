@@ -83068,7 +83068,6 @@ Phaser.Physics.Arcade.prototype = {
 	* @param {boolean} overlapOnly - Just run an overlap or a full collision.
 	*/
 	collideHandler: function (object1, object2, collideCallback, processCallback, callbackContext, overlapOnly) {
-
 		//  Only collide valid objects
 		if (object2 === undefined && object1.physicsType === Phaser.GROUP)
 		{
