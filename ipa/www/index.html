@@ -33,10 +33,10 @@
 
 
 		<script>
-			var console = {};
-			console.log = function(){};
-			console.warn = function(){};
-			window.console = console;
+			// var console = {};
+			// console.log = function(){};
+			// console.warn = function(){};
+			// window.console = console;
 			var game = {
 				new: function(width, height, canvas_selector) {
 					this.phaser = new Phaser.Game(width, height, Phaser.CANVAS, canvas_selector, this);
@@ -57,9 +57,9 @@
 					phaser.load.image('spritesheet', 'tilemap/spritesheet.png');
 					phaser.load.image('arrow', 'assets/arrow.png' , 70, 17);
 					// phaser.load.image('btn_fire', 'assets/button_attack.png', 128, 128);
-					phaser.load.image('btn_left', 'assets/left_arrow120.png',120,120);
-					phaser.load.image('btn_right', 'assets/right_arrow120.png',120,120);
-					phaser.load.image('btn_jump', 'assets/up_arrow120.png' ,120, 120);
+					phaser.load.spritesheet('btn_left', 'assets/button_left_spritesheet.png',120,120);
+					phaser.load.spritesheet('btn_right', 'assets/button_right_spritesheet.png',120,120);
+					phaser.load.spritesheet('btn_jump', 'assets/button_up_spritesheet.png' ,120, 120);
 					phaser.load.spritesheet('btn_fire', 'assets/button_attack_spritesheet.png',128,128);
 				},
 				create: function() {
@@ -226,10 +226,10 @@
 						// monster.animations.add('right', [13, 14, 15], 5, true);
 						monster.animations.add('left', [0,2], 5, true);
 						monster.animations.add('right', [14, 12, 10, 9], 5, true);
-						// monster.body.checkCollision.up = false;
-						// monster.body.checkCollision.left = true;
-						// monster.body.checkCollision.right = true;
-						// monster.body.checkCollision.down = true;
+						monster.body.checkCollision.up = false;
+						monster.body.checkCollision.left = true;
+						monster.body.checkCollision.right = true;
+						monster.body.checkCollision.down = true;
 						monster.bringToTop();
 
 						//怪物出現時的移動方向
@@ -257,7 +257,7 @@
 					// blood.setShadow(2, 2, '#373331', 1);
 					game.blood = blood;
 
-					var btnLeft = game.add.button(20, Y_ANCHOR_BUTTON, 'btn_left', null, this);
+					var btnLeft = game.add.button(20, Y_ANCHOR_BUTTON, 'btn_left', null, this, 1, 0, 1, 0);
 					btnLeft.inputEnabled = true;
 					btnLeft.input.priorityID = 1;
 			    btnLeft.fixedToCamera = true;
@@ -270,7 +270,7 @@
 			    	this.btnLeftIsClick = false;
 			    }.bind(this));
 
-      		var btnRight = game.add.button(100, Y_ANCHOR_BUTTON, 'btn_right', null, this);
+      		var btnRight = game.add.button(100, Y_ANCHOR_BUTTON, 'btn_right', null, this, 1, 0, 1, 0);
   		    btnRight.fixedToCamera = true;
   		    btnRight.inputEnabled = true;
 					btnRight.input.priorityID = 1;
@@ -283,7 +283,7 @@
 			    	this.btnRightIsClick = false;
   		    }.bind(this));
 
-			    var btnJump = game.add.button(500, Y_ANCHOR_BUTTON, 'btn_jump', null, this);
+			    var btnJump = game.add.button(500, Y_ANCHOR_BUTTON, 'btn_jump', null, this, 1, 0, 1, 0);
 			    btnJump.fixedToCamera = true;
 			    btnJump.inputEnabled = true;
 					btnJump.input.priorityID = 1;
@@ -322,6 +322,7 @@
 					var stars = game.stars;
 					var monsters = game.monsters;
 					var arrows = game.arrows;
+					var firetime = game.firetime;
 					var readyFire = game.readyFire;
 					var MOVING_SIGNAL = game.MOVING_SIGNAL;
 					var isMoving = game.isMoving;
@@ -418,9 +419,8 @@
 					
 					// ===============  發射動畫  ================
 					// 延長射擊時間間距
-					this.firetime -= 1;
-
-					if (phaser.input.activePointer.isDown && btnFireIsClick) {
+					game.firetime -= 1;
+					if (phaser.input.activePointer.isDown && btnFireIsClick && firetime <= 0) {
 						console.log("拉弓");
 						this.readyFire = true;
 						if (player.frame < 6) {
@@ -464,7 +464,7 @@
 						game.physics.arcade.velocityFromRotation(arrow.rotation, arrow.currentSpeed, arrow.body.velocity);  
 						// 用發射點與滑鼠之間的角度來產生速度
 						game.arrows.push(arrow);
-						game.firetime = 5;
+						game.firetime = 10;
 					}	
 					// ===============  發射動畫END  =============== 	
 					// ================  人物控制結束   ================
