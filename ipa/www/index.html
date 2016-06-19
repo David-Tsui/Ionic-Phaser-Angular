@@ -56,11 +56,11 @@
 					phaser.load.tilemap('map', 'tilemap/map_new.json', null, Phaser.Tilemap.TILED_JSON);
 					phaser.load.image('spritesheet', 'tilemap/spritesheet.png');
 					phaser.load.image('arrow', 'assets/arrow.png' , 70, 17);
-					phaser.load.image('btn_fire', 'assets/archer_attack.png', 128, 128);
+					// phaser.load.image('btn_fire', 'assets/button_attack.png', 128, 128);
 					phaser.load.image('btn_left', 'assets/left_arrow120.png',120,120);
 					phaser.load.image('btn_right', 'assets/right_arrow120.png',120,120);
 					phaser.load.image('btn_jump', 'assets/up_arrow120.png' ,120, 120);
-					// phaser.load.spritesheet('btn_fire', 'assets/button-round-a.png',64,64);
+					phaser.load.spritesheet('btn_fire', 'assets/button_attack_spritesheet.png',128,128);
 				},
 				create: function() {
 					//  啟用Arcade物理引擎
@@ -296,7 +296,7 @@
 			    	this.btnJumpIsClick = false;
 			    }.bind(this));
 
-			    var btnFire = game.add.button(580, Y_ANCHOR_BUTTON, 'btn_fire', null, this);
+			    var btnFire = game.add.button(580, Y_ANCHOR_BUTTON, 'btn_fire', null, this, 1, 0, 1, 0);
 			    btnFire.fixedToCamera = true;
 			    btnFire.inputEnabled = true;
 					btnFire.input.priorityID = 1;
