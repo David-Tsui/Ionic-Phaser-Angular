@@ -1,0 +1,74 @@
+.homeView{
+	h1, button{
+		font-family: 'Jura';
+	}
+	h1 {
+		font-size: 7em;
+		color: white;
+	}
+
+	h3 {
+		color: #eee;
+		& span {
+			font-style: italic;
+		}
+	}
+	button{
+		font-size: 26px;
+	}
+	#container {
+		position: relative;
+		min-height: 90px;
+	}
+	.power {
+		position: absolute;
+		bottom: 30px;
+	  width: 152px;
+	  height: 110px;
+	  background: url(http://i.imgur.com/yvYmv4s.png);
+	  animation: play .65s steps(6) infinite;
+	  &.left {
+			right: 236px;
+			transform: scale(.4) rotateY(180deg);
+	  }
+	  &.right {
+			left: 236px;
+			transform: scale(.4);
+	  }
+	}
+
+	.scroll-content {
+		background: linear-gradient(145deg, #6C6C6C,#95A2AB,#206AA7, #00508D, #002F57, #442144);
+		background-size: 800% 800%;
+		animation: background 26s ease infinite;
+		
+		.scroll{
+			height: 100%;
+			.row-center {
+				height: 100%;
+			}
+		}
+	}
+}
+@keyframes background { 
+	0%{background-position:1% 0%}
+  50%{background-position:99% 100%}
+  100%{background-position:1% 0%}
+}
+
+@keyframes play {
+  100% { background-position: -912px; }
+}
+
+@media (min-width: 380px) {
+	.homeView {
+		& .power {
+		  &.left {
+				right: 75%;
+		  }
+		  &.right {
+		  	left: 75%;
+		  }
+		}
+	}
+}

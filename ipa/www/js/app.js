@@ -27,16 +27,16 @@ ipa.run(function($ionicPlatform) {
 })
 
 .controller('MainCtrl', function($scope) {
-  document.addEventListener('deviceready', function () {
-    $scope.changeOriantationLandspace = function() {
-      console.log("landscape");
-      screen.lockOrientation('landscape');
-    }
-    $scope.changeOriantationPortrait = function() {
-      console.log("portrait");
-      screen.lockOrientation('portrait');
-    }
-  }, false);
+  // document.addEventListener('deviceready', function () {
+  //   $scope.changeOriantationLandspace = function() {
+  //     console.log("landscape");
+  //     screen.lockOrientation('landscape');
+  //   }
+  //   $scope.changeOriantationPortrait = function() {
+  //     console.log("portrait");
+  //     screen.lockOrientation('portrait');
+  //   }
+  // }, false);
 });
 
 
