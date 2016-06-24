@@ -1,5 +1,13 @@
-###How to run the ipa project?
-####Install node.js (latest version is prefered).
+##透過Ionic view看成品，不過要先創一個account
+```sh
+ionic login
+```
+```sh
+ionic upload
+```
+
+###運行整個專案
+####先在電腦安裝 node.js (latest version is prefered).
 ```sh
 npm install -g cordova ionic
 ```
@@ -40,12 +48,4 @@ ionic run android
 ##瀏覽器
 ```sh
 ionic serve
-```
-
-##透過Ionic view看成品，要先創一個account
-```sh
-ionic login
-```
-```sh
-ionic upload
 ```
