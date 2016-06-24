@@ -1,4 +1,11 @@
-##模擬機
+##How to run the ipa project?
+###Install node.js (latest version is prefered).
+####npm install -g cordova ionic
+####ionic platform add android
+(After USB connected)
+####ionic run android
+
+##模擬機(not recommend)
 ####ionic platform add android
 ####ionic build android
 ####ionic emulate android
@@ -15,6 +22,6 @@
 ##瀏覽器
 ####ionic serve
 
-##透過Ionic view看成品
+##透過Ionic view看成品，要先創一個account
 ####ionic login
 ####ionic upload
